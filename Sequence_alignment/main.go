@@ -1,8 +1,8 @@
 package main
 
 import (
-	. "Bioinformatics/lab1/needleman-wunsch"
-	. "Bioinformatics/lab1/utils"
+	. "Bioinformatics/Sequence_alignment/algoritm"
+	. "Bioinformatics/Sequence_alignment/utils"
 	"bufio"
 	"flag"
 	"fmt"
@@ -112,7 +112,7 @@ func main() {
 	seq1 = strings.ToUpper(seq1)
 	seq2 = strings.ToUpper(seq2)
 
-	alignedSeq1, alignedSeq2, score, err := engine.AlignSequences(seq1, seq2)
+	alignedSeq1, alignedSeq2, score, err := engine.NeedlemanWunsch(seq1, seq2)
 	check(err)
 
 	outpFile := strings.TrimSpace(*outpPtr)

@@ -11,14 +11,14 @@ func Reverse(s string) string {
 	return string(runes)
 }
 
-func Max(a int, b int, c int) int {
-	if a >= b && a >= c {
-		return a
-	} else if b >= a && b >= c {
-		return b
-	} else {
-		return c
+func Max(numbers ... int) int {
+	max_numb := numbers[0]
+	for i := 1; i < len(numbers); i++ {
+		if max_numb < numbers[i] {
+			max_numb = numbers[i]
+		}
 	}
+	return max_numb
 }
 
 // Inserts \n to fit lines into provided length

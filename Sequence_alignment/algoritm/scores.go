@@ -1,4 +1,4 @@
-package needleman_wunsch
+package algoritm
 
 import (
 	"errors"
