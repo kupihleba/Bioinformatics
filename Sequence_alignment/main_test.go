@@ -45,6 +45,34 @@ func TestNeedlemanWunsch(t *testing.T) {
 	}
 }
 
+
+func TestHirschberg(t *testing.T) {
+	engine := NewAlignEngine(
+		func(a byte, b byte) (i int, e error) {
+			if a == b {
+				return +2, nil
+			} else {
+				return -1, nil
+			}
+		},
+		-2,
+	)
+
+	res1A, res2A, _, err := engine.NeedlemanWunsch("AGTACGCA","TATGC")
+	checkTest(err, t)
+	//res1B, res2B, err := engine.Hirschberg( "G", "GC")
+
+	res1B, res2B, err := engine.Hirschberg( "AGTACGCA", "TATGC")
+	checkTest(err, t)
+
+	if res1A != res1B || res2A != res2B {
+		t.Error("Needleman-Wunsch and Hirschberg results mismatch!")
+		t.Errorf("\n%v\t%v\n%v\t%v", res1A, res2A, res1B, res2B)
+	} else {
+		t.Log("OK")
+	}
+}
+
 func TestSmithWaterman(t *testing.T) {
 	engine := NewAlignEngine(
 		func(a byte, b byte) (i int, e error) {
@@ -87,9 +115,54 @@ func checkTest(err error, t *testing.T) {
 	}
 }
 
+//func TestScore(t *testing.T) {
+//	engine := NewAlignEngine(
+//		func(a byte, b byte) (i int, e error) {
+//			if a == b {
+//				return +2, nil
+//			} else {
+//				return -1, nil
+//			}
+//		},
+//		-2,
+//	)
+//	seq1 := "AGTACGCA"
+//	seq2 := "TATGC"
+//	//arr, err := engine.NWScore( "TATGC", "AGTACGCA")
+//	//checkTest(err, t)
+//	arr, err := engine.calcGridScorePart(false, seq1, seq2)
+//	seq1 = "CGCA"
+//	correct :=  []int {-16, -12, -8, -7, -3, 1}
+//	for i:= 0; i < len(correct); i++ {
+//		if arr[i] != correct[i] {
+//			t.Error("calcGridScorePart FAILED")
+//		}
+//	}
+//	arr, err = engine.calcGridScorePart(true, seq1, seq2)
+//	correctRev := []int {-3, -1,  1,  0, -4, -8}
+//	for i:= 0; i < len(correct); i++ {
+//		if arr[i] != correctRev[i] {
+//			t.Error("calcGridScorePart FAILED")
+//		}
+//	}
+//	checkTest(err, t)
+//	fmt.Printf("%v\n", arr)
+//}
+
 func TestPrettify(t *testing.T) {
 	prettyStr := utils.Prettify("AAAAAAAAAA", 3)
 	if prettyStr != "AAA\nAAA\nAAA\nA" {
 		t.Error("Prettify fails")
+	}
+}
+
+func TestReverse(t *testing.T) {
+	str := "abcd"
+	if utils.ReverseStr(str) != "dcba" {
+		t.Error("That is not a reverse")
+	} else if str != "abcd" {
+		t.Error("Destructive method!")
+	} else {
+		t.Log("OK")
 	}
 }

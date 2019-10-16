@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"io"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -15,7 +16,13 @@ import (
 
 func readFile(path string) (string, string) {
 	file, err := os.OpenFile(path, os.O_RDONLY, os.ModePerm)
-	defer file.Close()
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
 	check(err)
 	reader := bufio.NewReader(file)
 
@@ -31,7 +38,12 @@ func readFile(path string) (string, string) {
 
 func writeSeqToFile(path string, seq1 string, seq2 string, score int) {
 	file, err := os.Create(path)
-	defer file.Close()
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 	check(err)
 	_, err = file.WriteString(seq1)
 	check(err)
@@ -84,6 +96,8 @@ func main() {
 		"output file, write 2 aligned sequences, separated with a newline")
 	typePtr := flag.String("t", "default",
 		"type of the weight matrix. Possible types DNAFull, BLOSUM62, DEFAULT")
+	algoPtr := flag.String("algo", "Needleman-Wunsch",
+		"Chose the alignment algorithm (Needleman-Wunsch|Smith-Waterman|Hirschberg)")
 	flag.Parse()
 
 	var (
@@ -112,7 +126,27 @@ func main() {
 	seq1 = strings.ToUpper(seq1)
 	seq2 = strings.ToUpper(seq2)
 
-	alignedSeq1, alignedSeq2, score, err := engine.NeedlemanWunsch(seq1, seq2)
+	var (
+		alignedSeq1, alignedSeq2 string
+		score                    int
+	)
+
+	algo := strings.TrimSpace(*algoPtr)
+	algo = strings.Replace(algo, "-", "", -1)
+	algo = strings.ToLower(algo)
+	switch algo {
+	case "hirschberg":
+		alignedSeq1, alignedSeq2, err = engine.Hirschberg(seq1, seq2)
+		break
+	case "smithwaterman":
+		alignedSeq1, alignedSeq2, score, err = engine.SmithWaterman(seq1, seq2)
+		break
+	case "needlemanwunsch":
+		alignedSeq1, alignedSeq2, score, err = engine.NeedlemanWunsch(seq1, seq2)
+		break
+	default:
+		panic("Unknown algorithm! Available options = Needleman-Wunsch | Smith-Waterman | Hirschberg")
+	}
 	check(err)
 
 	outpFile := strings.TrimSpace(*outpPtr)
