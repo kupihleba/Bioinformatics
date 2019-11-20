@@ -20,14 +20,17 @@ func ReverseArray(arr []int) {
 	}
 }
 
-func Max(numbers ...int) int {
+// Function returns 2 values: first - max value, second - index of max value
+func Max(numbers ...int) (int, int) {
 	max_numb := numbers[0]
+	pos := 0
 	for i := 1; i < len(numbers); i++ {
 		if max_numb < numbers[i] {
 			max_numb = numbers[i]
+			pos = i
 		}
 	}
-	return max_numb
+	return max_numb, pos
 }
 
 // Iterates over arrays, in search of the max sum of the elements with the same indices
@@ -39,7 +42,7 @@ func SumAndMax(arr1 []int, arr2 []int) int {
 	}
 	iMax := 0
 	valMax := arr1[0] + arr2[0]
-	for i := 1; i< len(arr1); i++ {
+	for i := 1; i < len(arr1); i++ {
 		maxCandidate := arr1[i] + arr2[i]
 		if valMax < maxCandidate {
 			iMax = i
