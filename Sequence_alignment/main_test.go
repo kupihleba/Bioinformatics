@@ -35,8 +35,8 @@ func TestNeedlemanWunsch(t *testing.T) {
 		-1,
 	)
 	for i, test := range testsNeedlemanWunsch {
-		res1, res2, _, err := engine.NeedlemanWunsch(test.seq1, test.seq2)
-		checkTest(err, t)
+		res1, res2, _ := engine.NeedlemanWunsch(test.seq1, test.seq2)
+		//checkTest(err, t)
 		if test.res1 != res1 || test.res2 != res2 {
 			t.Error(format(test, res1, res2))
 		} else {
@@ -45,6 +45,24 @@ func TestNeedlemanWunsch(t *testing.T) {
 	}
 }
 
+func TestGapDynamics(t *testing.T) {
+	engine := NewAlignEngineDyn(
+		ScoreDefault,
+		func(gapsInRow int) int {
+			return -2 - gapsInRow*2
+		})
+	test := test{
+		"AAAA", "AAAAAAAAAAAA",
+		"-A-A-A-A----", "AAAAAAAAAAAA",
+	}
+	res1, res2, _ := engine.NeedlemanWunsch("AAAA", "AAAAAAAAAAAA")
+	exp1, exp2 := "-A-A-A-A----", "AAAAAAAAAAAA"
+	if res1 != exp1 || res2 != exp2 {
+		t.Error(format(test, res1, res2))
+	} else {
+		t.Log("OK")
+	}
+}
 
 func TestHirschberg(t *testing.T) {
 	engine := NewAlignEngine(
@@ -58,12 +76,12 @@ func TestHirschberg(t *testing.T) {
 		-2,
 	)
 
-	res1A, res2A, _, err := engine.NeedlemanWunsch("AGTACGCA","TATGC")
-	checkTest(err, t)
+	res1A, res2A, _ := engine.NeedlemanWunsch("AGTACGCA", "TATGC")
+	//checkTest(err, t)
 	//res1B, res2B, err := engine.Hirschberg( "G", "GC")
 
-	res1B, res2B, err := engine.Hirschberg( "AGTACGCA", "TATGC")
-	checkTest(err, t)
+	res1B, res2B := engine.Hirschberg("AGTACGCA", "TATGC")
+	//checkTest(err, t)
 
 	if res1A != res1B || res2A != res2B {
 		t.Error("Needleman-Wunsch and Hirschberg results mismatch!")
@@ -85,8 +103,8 @@ func TestSmithWaterman(t *testing.T) {
 		-1,
 	)
 	for i, test := range testsSmithWaterman {
-		res1, res2, _, err := engine.SmithWaterman(test.seq1, test.seq2)
-		checkTest(err, t)
+		res1, res2, _ := engine.SmithWaterman(test.seq1, test.seq2)
+		//checkTest(err, t)
 		if test.res1 != res1 || test.res2 != res2 {
 			t.Error(format(test, res1, res2))
 		} else {
