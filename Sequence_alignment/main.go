@@ -136,13 +136,13 @@ func main() {
 	algo = strings.ToLower(algo)
 	switch algo {
 	case "hirschberg":
-		alignedSeq1, alignedSeq2, err = engine.Hirschberg(seq1, seq2)
+		alignedSeq1, alignedSeq2 = engine.Hirschberg(seq1, seq2)
 		break
 	case "smithwaterman":
-		alignedSeq1, alignedSeq2, score, err = engine.SmithWaterman(seq1, seq2)
+		alignedSeq1, alignedSeq2, score = engine.SmithWaterman(seq1, seq2)
 		break
 	case "needlemanwunsch":
-		alignedSeq1, alignedSeq2, score, err = engine.NeedlemanWunsch(seq1, seq2)
+		alignedSeq1, alignedSeq2, score = engine.NeedlemanWunsch(seq1, seq2)
 		break
 	default:
 		panic("Unknown algorithm! Available options = Needleman-Wunsch | Smith-Waterman | Hirschberg")
