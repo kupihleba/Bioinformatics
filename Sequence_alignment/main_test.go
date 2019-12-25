@@ -1,7 +1,7 @@
 package main
 
 import (
-	. "Bioinformatics/Sequence_alignment/algoritm"
+	. "Bioinformatics/Sequence_alignment/algorithm"
 	"Bioinformatics/Sequence_alignment/utils"
 	"fmt"
 	"testing"
@@ -61,6 +61,25 @@ func TestGapDynamics(t *testing.T) {
 		t.Error(format(test, res1, res2))
 	} else {
 		t.Log("OK")
+	}
+}
+
+func TestFasta(t *testing.T) {
+	//CalcDiagScore(BuildMatrix("AAAAA", "AAA"))
+	data := []string{
+		"CAAAABRTYUIO",
+		"CAAAAAAAAAAAAATSADBBBBS",
+		"CAAAB",
+	}
+	engine := NewAlignEngine(ScoreDefault, -2)
+	str1, str2, score, _ := engine.MultiAlignSequences("DFRFAAAAAAAIAAAAAFDEBBBBBC", data)
+	if str1 == "AAAAAAAIAAAAA" &&
+		str2 == "AAAAAAAAAAAAA" && score == 11 {
+		t.Log("PASSED")
+		t.Log("TEST FASTA", "OK")
+
+	} else {
+		t.Fail()
 	}
 }
 

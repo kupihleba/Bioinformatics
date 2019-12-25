@@ -33,6 +33,18 @@ func Max(numbers ...int) (int, int) {
 	return max_numb, pos
 }
 
+func Min(numbers ...int) (int, int) {
+	min_numb := numbers[0]
+	pos := 0
+	for i := 1; i < len(numbers); i++ {
+		if min_numb > numbers[i] {
+			min_numb = numbers[i]
+			pos = i
+		}
+	}
+	return min_numb, pos
+}
+
 // Iterates over arrays, in search of the max sum of the elements with the same indices
 func SumAndMax(arr1 []int, arr2 []int) int {
 	if len(arr1) != len(arr2) {

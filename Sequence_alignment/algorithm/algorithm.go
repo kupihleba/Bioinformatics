@@ -1,6 +1,6 @@
 // Bioinformatics algorithms
 // to align protein or nucleotide sequences
-package algoritm
+package algorithm
 
 import (
 	"Bioinformatics/Sequence_alignment/utils"
@@ -24,6 +24,9 @@ type AlignEngine struct {
 	ScoreFunc ScoreFuncType
 	ScoreGap  ScoreGapType
 	GapChar   byte
+}
+type Coordinate struct {
+	i, j int
 }
 
 func init() {
@@ -296,6 +299,116 @@ func (engine *AlignEngine) findAlign(seq1 string, seq2 string,
 	}
 	resScore := table[len(table)-1][len(table[0])-1]
 	return utils.ReverseStr(sbSeq1.String()), utils.ReverseStr(sbSeq2.String()), resScore
+}
+
+func (engine *AlignEngine) MultiAlignSequences(template string, seqs []string) (string, string, int, int) {
+	if len(seqs) == 0 {
+		panic("Sequences are empty!")
+	} else if len(template) == 0 {
+		panic("Template length is 0!")
+	}
+	const TUBE_RADIUS = 3
+	//bestIndex := 0
+	bestScore := 0
+	bestIndex := 0
+	var bestStr1, bestStr2 string
+	for i, seq := range seqs {
+		if len(seq) == 0 {
+			panic("Seq length is 0!")
+		}
+		matrix := BuildMatrix(seq, template)
+		sum, vi, firstNonNull, lastNonNull := CalcDiagScore(matrix)
+		log.Printf("vi: %d\n sum: %d\n", vi, sum)
+		log.Printf("First (%d, %d)\n", firstNonNull.i, firstNonNull.j)
+		log.Printf("Last (%d, %d)\n", lastNonNull.i, lastNonNull.j)
+		str1, str2, score := engine.SmithWaterman(
+			template[firstNonNull.i:lastNonNull.i+2],
+			seq[firstNonNull.j:lastNonNull.j+2],
+		)
+		if score > bestScore {
+			bestScore = score
+			bestStr1 = str1
+			bestStr2 = str2
+			bestIndex = i
+		}
+		log.Printf("Score: %d\n", score)
+		log.Printf("RESULT:\n%s\n%s\n%d\n", str1, str2, score)
+	}
+	return bestStr1, bestStr2, bestScore, bestIndex
+}
+
+func makeMap(templ string, l int) map[string][]int {
+	mapa := make(map[string][]int)
+
+	for i := 0; i < len(templ)-l+1; i++ {
+		id := templ[i : i+l]
+		if val, ok := mapa[id]; ok {
+			mapa[id] = append(val, i)
+		} else {
+			mapa[id] = []int{i}
+		}
+	}
+
+	return mapa
+}
+
+func BuildMatrix(s_i string, templ string) [][]byte {
+	l := 2
+	mapa := makeMap(s_i, 2)
+	matrix := make([][]byte, len(s_i)-1)
+	for i := range matrix {
+		matrix[i] = make([]byte, len(templ)-1)
+	}
+	for i := 0; i < len(templ)-l+1; i++ {
+		id := templ[i : i+l]
+		if val, ok := mapa[id]; ok {
+			for _, j := range val {
+				matrix[j][i] = 1
+			}
+		}
+	}
+	return matrix
+}
+
+func CalcDiagScore(matrix [][]byte) (int, int, Coordinate, Coordinate) {
+	height := len(matrix)
+	width := len(matrix[0])
+	maxSum := 0
+	resVi := 0
+	firstNonNull := make(map[int]Coordinate)
+	lastNonNull := make(map[int]Coordinate)
+	for vi := 0; vi < height+width-1; vi++ {
+		j, _ := utils.Max(height-1-vi, 0)
+		i := 0
+		if vi >= height-1 {
+			i = vi - (height - 1)
+		}
+		sum := 0
+		for i < width && j < height {
+			val := int(matrix[j][i])
+			if _, ok := firstNonNull[vi]; !ok && val == 1 {
+				firstNonNull[vi] = Coordinate{
+					i: i,
+					j: j,
+				}
+			}
+			if val == 1 {
+				lastNonNull[vi] = Coordinate{
+					i: i,
+					j: j,
+				}
+			}
+			sum += val
+			i++
+			j++
+		}
+		//fmt.Printf("vi: %d\nsum: %d\n\n", vi, sum)
+		if maxSum < sum {
+			maxSum = sum
+			resVi = vi
+		}
+	}
+	return maxSum, resVi, firstNonNull[resVi], lastNonNull[resVi]
 }
 
 // Only for debug purposes

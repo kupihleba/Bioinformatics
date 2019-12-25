@@ -1,4 +1,4 @@
-package algoritm
+package algorithm
 
 import (
 	"errors"
